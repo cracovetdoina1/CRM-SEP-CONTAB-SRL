@@ -154,10 +154,9 @@ export function PageHeader({ title, subtitle, action }) {
   );
 }
 
-export function EmptyState({ icon, title, subtitle, action }) {
+export function EmptyState({ title, subtitle, action }) {
   return (
     <div className="text-center py-16">
-      <div className="text-5xl mb-4">{icon}</div>
       <h3 className="text-lg font-semibold text-gray-700 mb-1">{title}</h3>
       {subtitle && <p className="text-sm text-gray-400 mb-4">{subtitle}</p>}
       {action}
@@ -168,7 +167,7 @@ export function EmptyState({ icon, title, subtitle, action }) {
 export function Loading() {
   return (
     <div className="flex flex-col items-center justify-center py-20">
-      <div className="w-8 h-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-3"></div>
+      <div className="w-8 h-8 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-3"></div>
       <p className="text-sm text-gray-400">Se încarcă...</p>
     </div>
   );
@@ -196,3 +195,4 @@ export const BANCI = [
   "CEC Bank","Banca Transilvania","OTP Bank","Garanti BBVA","Libra Bank",
   "First Bank","Exim Banca","Patria Bank","TBI Bank","Altă bancă"
 ];
+
