@@ -39,13 +39,12 @@ export default function FirmeContabilitate() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filtruStatus, setFiltruStatus] = useState("Toate");
-  const [modal, setModal] = useState(null); // null | "add" | "edit" | "view"
+  const [modal, setModal] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [selectedFirma, setSelectedFirma] = useState(null);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("info");
 
-  // Documente state
   const [docModal, setDocModal] = useState(false);
   const [docForm, setDocForm] = useState({ categorie: "", denumire: "", observatii: "" });
   const [docSaving, setDocSaving] = useState(false);
@@ -164,7 +163,7 @@ export default function FirmeContabilitate() {
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="🔍 Caută după denumire, CUI, administrator..."
+          placeholder="Caută după denumire, CUI, administrator..."
           className="flex-1 min-w-64 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
         />
         <div className="flex gap-1">
@@ -204,36 +203,36 @@ export default function FirmeContabilitate() {
 
                 <div className="space-y-1.5 text-sm">
                   <div className="flex gap-2 text-gray-600">
-                    <span className="text-gray-400 w-8">CUI</span>
+                    <span className="text-gray-400 w-8 text-xs">CUI</span>
                     <span className="font-medium">{firma.cui}</span>
                   </div>
                   {firma.nr_reg_com && (
                     <div className="flex gap-2 text-gray-600">
-                      <span className="text-gray-400 w-8">RC</span>
+                      <span className="text-gray-400 w-8 text-xs">RC</span>
                       <span>{firma.nr_reg_com}</span>
                     </div>
                   )}
                   {firma.administrator && (
                     <div className="flex gap-2 text-gray-600">
-                      <span className="text-gray-400 w-8">👤</span>
+                      <span className="text-gray-400 w-8 text-xs">Adm.</span>
                       <span>{firma.administrator}</span>
                     </div>
                   )}
                   {firma.telefon && (
                     <div className="flex gap-2 text-gray-600">
-                      <span className="text-gray-400 w-8"> </span>
+                      <span className="text-gray-400 w-8 text-xs">Tel.</span>
                       <span>{firma.telefon}</span>
                     </div>
                   )}
                   {firma.email && (
                     <div className="flex gap-2 text-gray-600">
-                      <span className="text-gray-400 w-8">📧</span>
+                      <span className="text-gray-400 w-8 text-xs">Email</span>
                       <span className="truncate">{firma.email}</span>
                     </div>
                   )}
                   {firma.judet && (
                     <div className="flex gap-2 text-gray-600">
-                      <span className="text-gray-400 w-8"> </span>
+                      <span className="text-gray-400 w-8 text-xs">Jud.</span>
                       <span>{firma.localitate ? `${firma.localitate}, ` : ""}{firma.judet}</span>
                     </div>
                   )}
@@ -247,9 +246,9 @@ export default function FirmeContabilitate() {
                     )}
                   </div>
                   <div className="flex gap-1">
-                    <Btn variant="ghost" size="sm" onClick={() => openView(firma)}> </Btn>
-                    <Btn variant="ghost" size="sm" onClick={() => openEdit(firma)}> </Btn>
-                    <Btn variant="ghost" size="sm" onClick={() => handleDelete(firma.id, firma.denumire)}>🗑️</Btn>
+                    <Btn variant="ghost" size="sm" onClick={() => openView(firma)}>Vezi</Btn>
+                    <Btn variant="ghost" size="sm" onClick={() => openEdit(firma)}>Editează</Btn>
+                    <Btn variant="ghost" size="sm" onClick={() => handleDelete(firma.id, firma.denumire)}>Șterge</Btn>
                   </div>
                 </div>
               </div>
@@ -377,7 +376,7 @@ export default function FirmeContabilitate() {
           <div className="flex justify-end gap-3 pt-2 border-t border-gray-100 mt-4">
             <Btn variant="secondary" onClick={() => setModal(null)}>Anulează</Btn>
             <Btn onClick={handleSave} disabled={saving}>
-              {saving ? "Se salvează..." : modal === "add" ? "💾 Adaugă Firma" : "💾 Salvează Modificările"}
+              {saving ? "Se salvează..." : modal === "add" ? "Adaugă Firma" : "Salvează Modificările"}
             </Btn>
           </div>
         </Modal>
@@ -395,8 +394,8 @@ export default function FirmeContabilitate() {
           {/* Tabs */}
           <div className="flex gap-1 mb-5 border-b border-gray-200 -mt-1">
             {[
-              { id: "info", label: "📋 Informații" },
-              { id: "documente", label: `📁 Documente (${selectedFirma.documente?.length || 0})` },
+              { id: "info", label: "Informații" },
+              { id: "documente", label: `Documente (${selectedFirma.documente?.length || 0})` },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -414,7 +413,6 @@ export default function FirmeContabilitate() {
 
           {activeTab === "info" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Coloana stanga */}
               <div className="space-y-4">
                 <InfoCard title="Date de identificare">
                   <InfoRow label="Denumire" value={selectedFirma.denumire} bold />
@@ -437,7 +435,6 @@ export default function FirmeContabilitate() {
                 </InfoCard>
               </div>
 
-              {/* Coloana dreapta */}
               <div className="space-y-4">
                 <InfoCard title="Administrator & Contact">
                   <InfoRow label="Administrator" value={selectedFirma.administrator} bold />
@@ -475,15 +472,12 @@ export default function FirmeContabilitate() {
                 <div className="space-y-2">
                   {selectedFirma.documente.map(doc => (
                     <div key={doc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">📄</span>
-                        <div>
-                          <p className="font-semibold text-sm text-gray-800">{doc.denumire}</p>
-                          <p className="text-xs text-gray-500">{doc.categorie} • {doc.data_adaugare}</p>
-                          {doc.observatii && <p className="text-xs text-gray-400 mt-0.5">{doc.observatii}</p>}
-                        </div>
+                      <div>
+                        <p className="font-semibold text-sm text-gray-800">{doc.denumire}</p>
+                        <p className="text-xs text-gray-500">{doc.categorie} • {doc.data_adaugare}</p>
+                        {doc.observatii && <p className="text-xs text-gray-400 mt-0.5">{doc.observatii}</p>}
                       </div>
-                      <Btn variant="ghost" size="sm" onClick={() => handleDeleteDoc(doc.id)}>🗑️</Btn>
+                      <Btn variant="ghost" size="sm" onClick={() => handleDeleteDoc(doc.id)}>Șterge</Btn>
                     </div>
                   ))}
                 </div>
@@ -493,9 +487,9 @@ export default function FirmeContabilitate() {
 
           <div className="flex justify-between mt-5 pt-4 border-t border-gray-100">
             <Btn variant="danger" size="sm" onClick={() => handleDelete(selectedFirma.id, selectedFirma.denumire)}>
-              🗑️ Șterge firma
+              Șterge firma
             </Btn>
-            <Btn onClick={() => openEdit(selectedFirma)}>✏️ Editează</Btn>
+            <Btn onClick={() => openEdit(selectedFirma)}>Editează</Btn>
           </div>
         </Modal>
       )}
@@ -530,12 +524,12 @@ export default function FirmeContabilitate() {
             </FormField>
           </div>
           <p className="text-xs text-amber-600 bg-amber-50 rounded-lg p-3 mt-3">
-            ⚠️ Upload fișiere vine în versiunea următoare. Acum poți înregistra doar evidența documentelor.
+            Upload fișiere vine în versiunea următoare. Acum poți înregistra doar evidența documentelor.
           </p>
           <div className="flex justify-end gap-2 mt-4">
             <Btn variant="secondary" onClick={() => setDocModal(false)}>Anulează</Btn>
             <Btn onClick={handleAddDoc} disabled={docSaving}>
-              {docSaving ? "Se salvează..." : "💾 Adaugă"}
+              {docSaving ? "Se salvează..." : "Adaugă"}
             </Btn>
           </div>
         </Modal>
@@ -567,3 +561,4 @@ function InfoRow({ label, value, bold }) {
     </div>
   );
 }
+
