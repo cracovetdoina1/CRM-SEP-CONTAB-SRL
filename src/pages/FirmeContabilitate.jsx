@@ -561,4 +561,3 @@ function InfoRow({ label, value, bold }) {
     </div>
   );
 }
-
