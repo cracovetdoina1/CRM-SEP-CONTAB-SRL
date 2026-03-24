@@ -2,6 +2,10 @@ import { useState } from "react";
 import Dashboard from "./pages/Dashboard";
 import FirmeContabilitate from "./pages/FirmeContabilitate";
 import ClientiActivi from "./pages/ClientiActivi";
+import BazaClienti from "./pages/BazaClienti";
+import FirmeSuspendate from "./pages/FirmeSuspendate";
+import Rezilieri from "./pages/Rezilieri";
+import ContracteEmise from "./pages/ContracteEmise";
 import ComingSoon from "./pages/ComingSoon";
 
 const MODULES = [
@@ -12,34 +16,34 @@ const MODULES = [
     ]
   },
   {
-    section: "Firme & Clienți",
+    section: "Firme & Clienti",
     items: [
       { id: "firme_contabilitate", label: "Firme Contabilitate", component: FirmeContabilitate },
-      { id: "clienti_activi", label: "Clienți Activi", component: ClientiActivi },
-      { id: "baza_clienti", label: "Baza Clienți", component: () => <ComingSoon title="Baza Mare de Clienți" description="Toți clienții: activi, suspendați, reziliați — cu filtre avansate și export Excel." /> },
-      { id: "firme_suspendate", label: "Firme Suspendate", component: () => <ComingSoon title="Firme Suspendate" description="Vedere filtrată cu firmele suspendate ONRC, dată suspendare și dată estimată reactivare." /> },
-      { id: "rezilieri", label: "Rezilieri", component: () => <ComingSoon title="Rezilieri & Suspendări Servicii" description="Gestionare rezilieri definitive și suspendări temporare de servicii pentru neplată sau alte cauze." /> },
+      { id: "clienti_activi", label: "Clienti Activi", component: ClientiActivi },
+      { id: "baza_clienti", label: "Baza Clienti", component: BazaClienti },
+      { id: "firme_suspendate", label: "Firme Suspendate", component: FirmeSuspendate },
+      { id: "rezilieri", label: "Rezilieri", component: Rezilieri },
     ]
   },
   {
     section: "Contracte & Documente",
     items: [
-      { id: "contracte_emise", label: "Contracte Emise", component: () => <ComingSoon title="Contracte Emise" description="Toate contractele emise cu statusuri: Draft, Trimis spre semnare, Semnat, Suspendat, Reziliat." /> },
-      { id: "sabloane", label: "Șabloane Contracte", component: () => <ComingSoon title="Șabloane & Drafturi" description="Modele de contracte care se completează automat cu datele clientului. Export PDF și Word." /> },
-      { id: "doc_incomplete", label: "Doc. Incomplete", component: () => <ComingSoon title="Documente Incomplete" description="Alertă automată pentru clienții cu dosare incomplete. Listare clienți și documente lipsă." /> },
+      { id: "contracte_emise", label: "Contracte Emise", component: ContracteEmise },
+      { id: "sabloane", label: "Sabloane Contracte", component: () => <ComingSoon title="Sabloane & Drafturi" description="Modele de contracte care se completeaza automat cu datele clientului. Export PDF si Word. — Etapa 3" /> },
+      { id: "doc_incomplete", label: "Doc. Incomplete", component: () => <ComingSoon title="Documente Incomplete" description="Alerta automata pentru clientii cu dosare incomplete. — Etapa 3" /> },
     ]
   },
   {
-    section: "Vânzări",
+    section: "Vanzari",
     items: [
-      { id: "leaduri", label: "Lead-uri", component: () => <ComingSoon title="Potențiali Clienți (Lead-uri)" description="Pipeline complet: Nou → Contactat → Ofertat → Negociere → Așteptare semnare → Câștigat/Pierdut." /> },
+      { id: "leaduri", label: "Lead-uri", component: () => <ComingSoon title="Potentiali Clienti (Lead-uri)" description="Pipeline complet: Nou → Contactat → Ofertat → Negociere → Asteptare semnare → Castigat/Pierdut. — Etapa 3" /> },
     ]
   },
   {
     section: "Administrare",
     items: [
-      { id: "utilizatori", label: "Utilizatori", component: () => <ComingSoon title="Utilizatori & Drepturi" description="Gestionare utilizatori și roluri: Admin, Manager, Contabil, Operator." /> },
-      { id: "setari", label: "Setări", component: () => <ComingSoon title="Setări" /> },
+      { id: "utilizatori", label: "Utilizatori", component: () => <ComingSoon title="Utilizatori & Drepturi" description="Gestionare utilizatori si roluri: Admin, Manager, Contabil, Operator. — Etapa 3" /> },
+      { id: "setari", label: "Setari", component: () => <ComingSoon title="Setari" /> },
     ]
   }
 ];
