@@ -154,7 +154,7 @@ export default function FirmeContabilitate() {
   return (
     <div className="p-6">
       <PageHeader
-        title="🏛️ Firme de Contabilitate"
+        title="Firme de Contabilitate"
         subtitle={`${firme.filter(f => f.status_firma === "Activa").length} active din ${firme.length} total`}
         action={<Btn onClick={openAdd}>+ Adaugă Firmă</Btn>}
       />
@@ -185,7 +185,6 @@ export default function FirmeContabilitate() {
       {/* Lista */}
       {loading ? <Loading /> : filtered.length === 0 ? (
         <EmptyState
-          icon="🏛️"
           title="Nu există firme înregistrate"
           subtitle="Adaugă prima firmă de contabilitate"
           action={<Btn onClick={openAdd}>+ Adaugă Firmă</Btn>}
@@ -222,7 +221,7 @@ export default function FirmeContabilitate() {
                   )}
                   {firma.telefon && (
                     <div className="flex gap-2 text-gray-600">
-                      <span className="text-gray-400 w-8">📞</span>
+                      <span className="text-gray-400 w-8"> </span>
                       <span>{firma.telefon}</span>
                     </div>
                   )}
@@ -234,7 +233,7 @@ export default function FirmeContabilitate() {
                   )}
                   {firma.judet && (
                     <div className="flex gap-2 text-gray-600">
-                      <span className="text-gray-400 w-8">📍</span>
+                      <span className="text-gray-400 w-8"> </span>
                       <span>{firma.localitate ? `${firma.localitate}, ` : ""}{firma.judet}</span>
                     </div>
                   )}
@@ -248,8 +247,8 @@ export default function FirmeContabilitate() {
                     )}
                   </div>
                   <div className="flex gap-1">
-                    <Btn variant="ghost" size="sm" onClick={() => openView(firma)}>👁️</Btn>
-                    <Btn variant="ghost" size="sm" onClick={() => openEdit(firma)}>✏️</Btn>
+                    <Btn variant="ghost" size="sm" onClick={() => openView(firma)}> </Btn>
+                    <Btn variant="ghost" size="sm" onClick={() => openEdit(firma)}> </Btn>
                     <Btn variant="ghost" size="sm" onClick={() => handleDelete(firma.id, firma.denumire)}>🗑️</Btn>
                   </div>
                 </div>
@@ -471,7 +470,7 @@ export default function FirmeContabilitate() {
                 <Btn onClick={() => setDocModal(true)}>+ Adaugă Document</Btn>
               </div>
               {(!selectedFirma.documente || selectedFirma.documente.length === 0) ? (
-                <EmptyState icon="📁" title="Nu există documente" subtitle="Adaugă primul document al acestei firme" />
+                <EmptyState title="Nu există documente" subtitle="Adaugă primul document al acestei firme" />
               ) : (
                 <div className="space-y-2">
                   {selectedFirma.documente.map(doc => (
