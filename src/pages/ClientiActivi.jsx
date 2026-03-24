@@ -32,7 +32,6 @@ const CAT_DOCUMENTE_CLIENT = [
 ];
 
 const EMPTY_FORM = {
-  // Identificare
   tip_entitate: "SRL", denumire: "", denumire_comerciala: "", cui: "",
   nr_reg_com: "", euid: "", status_client: "Activ",
   firma_contabilitate_id: "", firma_contabilitate_denumire: "",
@@ -40,7 +39,6 @@ const EMPTY_FORM = {
   data_inceput_colaborare: "", data_sfarsit_colaborare: "",
   este_client_nou: false, canal_provenienta: "", sursa_detaliata: "", recomandat_de: "",
   observatii_generale: "",
-  // Date fiscale
   platitor_tva: false, cod_tva: "", vector_fiscal: "Lunar",
   cui_intracomunitar: false, nr_cui_intracomunitar: "",
   punct_lucru: false, nr_puncte_lucru: "",
@@ -49,21 +47,16 @@ const EMPTY_FORM = {
   token: "", procura: false, semnatura_digitala: false, casa_marcat: false,
   activitate_principala: "", cod_caen_principal: "", coduri_caen_secundare: "",
   cont_bancar_principal: "", banca_principala: "",
-  // Adresă
   judet: "", localitate: "", strada: "", numar: "", bloc: "", scara: "",
   apartament: "", cod_postal: "",
-  // Administrator
   administrator_nume: "", administrator_cnp: "", administrator_ci_serie: "",
   administrator_ci_numar: "", administrator_telefon: "", administrator_email: "",
-  // Contact principal
   persoana_contact_nume: "", persoana_contact_functie: "",
   persoana_contact_telefon: "", persoana_contact_email: "",
   telefon_secundar: "", email_secundar: "",
-  // Servicii
   serviciu_contabilitate: false, serviciu_hr: false, serviciu_bilant: false,
   serviciu_consultanta: false, serviciu_revisal: false, serviciu_salarizare: false,
   alte_servicii: "",
-  // Tarifare
   tarif_contabilitate: "", tarif_hr: "", tarif_bilant: "", tarif_total: "",
   moneda: "RON", data_ultima_modificare_tarif: "",
 };
@@ -105,72 +98,40 @@ export default function ClientiActivi() {
     const q = search.toLowerCase();
     const matchSearch = !q || c.denumire?.toLowerCase().includes(q) ||
       c.cui?.includes(q) || c.persoana_contact_nume?.toLowerCase().includes(q) ||
-      c.administrator_nume?.toLowerCase().includes(q);
-    const matchStatus = filtruStatus === "Toti" || c.status_client === filtruStatus;
+      c.contabil_responsabil?.toLowerCase().includes(q);
+    const matchStatus = filtruStatus === "Toate" || c.status_client === filtruStatus;
     const matchFirma = !filtruFirma || c.firma_contabilitate_id === filtruFirma;
     return matchSearch && matchStatus && matchFirma;
   });
 
-  const openAdd = () => {
-    setForm({ ...EMPTY_FORM, data_inceput_colaborare: new Date().toISOString().split("T")[0] });
-    setModal("add");
-  };
+  const openAdd = () => { setForm(EMPTY_FORM); setModal("add"); };
+  const openEdit = (client) => { setForm({ ...EMPTY_FORM, ...client }); setSelectedClient(client); setModal("edit"); };
+  const openView = (client) => { setSelectedClient(client); setActiveTab("info"); setModal("view"); };
 
-  const openEdit = (client) => {
-    setForm({ ...EMPTY_FORM, ...client });
-    setSelectedClient(client);
-    setModal("edit");
-  };
-
-  const openView = (client) => {
-    setSelectedClient(client);
-    setActiveTab("info");
-    setModal("view");
-  };
+  const getBool = (field) => !!form[field];
 
   const handleSave = async () => {
     if (!form.denumire || !form.cui) return alert("Denumirea și CUI-ul sunt obligatorii!");
     setSaving(true);
     try {
-      // Adaugă denumirea firmei de contabilitate
-      const firma = firme.find(f => f.id === form.firma_contabilitate_id);
+      const firmaSelectata = firme.find(f => f.id === form.firma_contabilitate_id);
       const data = {
         ...form,
-        firma_contabilitate_denumire: firma?.denumire || "",
+        firma_contabilitate_denumire: firmaSelectata?.denumire_scurta || firmaSelectata?.denumire || "",
         updated_at: serverTimestamp(),
       };
       if (modal === "add") {
         data.created_at = serverTimestamp();
         data.documente = [];
-        data.istoric = [{
-          tip: "creare",
-          descriere: "Client creat în CRM",
-          data: new Date().toISOString(),
-          utilizator: "sistem",
-        }];
+        data.istoric = [];
         await addDoc(collection(db, "clienti"), data);
       } else {
-        // Înregistrăm modificările în istoric
-        const istoric = form.istoric || [];
-        if (form.tarif_total !== selectedClient?.tarif_total) {
-          istoric.push({
-            tip: "modificare_tarif",
-            descriere: `Tarif modificat de la ${selectedClient?.tarif_total || "0"} la ${form.tarif_total} ${form.moneda}`,
-            valoare_veche: selectedClient?.tarif_total,
-            valoare_noua: form.tarif_total,
-            data: new Date().toISOString(),
-            utilizator: "sistem",
-          });
-        }
-        if (form.platitor_tva !== selectedClient?.platitor_tva) {
-          istoric.push({
-            tip: "modificare_tva",
-            descriere: `Plătitor TVA: ${form.platitor_tva ? "DA" : "NU"}`,
-            data: new Date().toISOString(),
-            utilizator: "sistem",
-          });
-        }
-        data.istoric = istoric;
+        const istoricEntry = {
+          data: new Date().toISOString(),
+          descriere: `Client actualizat`,
+          utilizator: "Admin",
+        };
+        data.istoric = [...(form.istoric || []), istoricEntry];
         await updateDoc(doc(db, "clienti", form.id), data);
       }
       await reload();
@@ -181,27 +142,36 @@ export default function ClientiActivi() {
 
   const handleDelete = async (id, denumire) => {
     if (!window.confirm(`Sigur vrei să ștergi clientul "${denumire}"?`)) return;
-    await deleteDoc(doc(db, "clienti", id));
-    await reload();
-    if (modal === "view") setModal(null);
+    try {
+      await deleteDoc(doc(db, "clienti", id));
+      await reload();
+      if (modal === "view") setModal(null);
+    } catch (e) { alert("Eroare: " + e.message); }
   };
 
   const handleAddDoc = async () => {
     if (!docForm.categorie || !docForm.denumire) return alert("Completează categoria și denumirea!");
-    const documente = [...(selectedClient.documente || []), {
-      ...docForm, data_adaugare: new Date().toISOString().split("T")[0], id: Date.now().toString(),
-    }];
-    await updateDoc(doc(db, "clienti", selectedClient.id), { documente });
-    setSelectedClient(prev => ({ ...prev, documente }));
-    await reload();
-    setDocForm({ categorie: "", denumire: "", observatii: "" });
-    setDocModal(false);
+    try {
+      const client = clienti.find(c => c.id === selectedClient.id);
+      const documente = [...(client.documente || []), {
+        ...docForm,
+        data_adaugare: new Date().toISOString().split("T")[0],
+        id: Date.now().toString(),
+      }];
+      await updateDoc(doc(db, "clienti", selectedClient.id), { documente });
+      await reload();
+      const updated = (await getDocs(collection(db, "clienti"))).docs
+        .map(d => ({ ...d.data(), id: d.id }))
+        .find(c => c.id === selectedClient.id);
+      setSelectedClient(updated);
+      setDocForm({ categorie: "", denumire: "", observatii: "" });
+      setDocModal(false);
+    } catch (e) { alert("Eroare: " + e.message); }
   };
 
   const f = (field) => form[field] ?? "";
   const set = (field) => (e) => setForm(p => ({ ...p, [field]: e.target?.value ?? e }));
   const setCheck = (field) => (e) => setForm(p => ({ ...p, [field]: e.target.checked }));
-  const getBool = (field) => !!form[field];
 
   // ============================================================
   // RENDER
@@ -209,7 +179,7 @@ export default function ClientiActivi() {
   return (
     <div className="p-6">
       <PageHeader
-        title="👥 Clienți Activi"
+        title="Clienți Activi"
         subtitle={`${clienti.filter(c => c.status_client === "Activ").length} activi din ${clienti.length} total`}
         action={<Btn onClick={openAdd}>+ Adaugă Client</Btn>}
       />
@@ -219,19 +189,21 @@ export default function ClientiActivi() {
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="🔍 Caută după denumire, CUI, contact..."
+          placeholder="Caută după denumire, CUI, contact..."
           className="flex-1 min-w-64 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
         />
         <select
           value={filtruFirma}
           onChange={e => setFiltruFirma(e.target.value)}
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
+          className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
         >
           <option value="">Toate firmele</option>
-          {firme.map(f => <option key={f.id} value={f.id}>{f.denumire_scurta || f.denumire}</option>)}
+          {firme.map(f => (
+            <option key={f.id} value={f.id}>{f.denumire_scurta || f.denumire}</option>
+          ))}
         </select>
         <div className="flex gap-1">
-          {["Toti", "Activ", "Suspendat", "Reziliat", "Prospect"].map(s => (
+          {["Toate", ...STATUS_CLIENT].map(s => (
             <button
               key={s}
               onClick={() => setFiltruStatus(s)}
@@ -247,7 +219,7 @@ export default function ClientiActivi() {
 
       {/* Lista */}
       {loading ? <Loading /> : filtered.length === 0 ? (
-        <EmptyState icon="👥" title="Nu există clienți" subtitle="Adaugă primul client" action={<Btn onClick={openAdd}>+ Adaugă Client</Btn>} />
+        <EmptyState title="Nu există clienți" subtitle="Adaugă primul client" action={<Btn onClick={openAdd}>+ Adaugă Client</Btn>} />
       ) : (
         <div className="space-y-2">
           {filtered.map(client => (
@@ -264,10 +236,10 @@ export default function ClientiActivi() {
                     </div>
                     <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 flex-wrap">
                       <span>CUI: <strong>{client.cui}</strong></span>
-                      {client.firma_contabilitate_denumire && <span>🏛️ {client.firma_contabilitate_denumire}</span>}
-                      {client.contabil_responsabil && <span>👤 {client.contabil_responsabil}</span>}
-                      {client.persoana_contact_telefon && <span>📞 {client.persoana_contact_telefon}</span>}
-                      {client.tarif_total && <span>💰 {client.tarif_total} {client.moneda}/lună</span>}
+                      {client.firma_contabilitate_denumire && <span>{client.firma_contabilitate_denumire}</span>}
+                      {client.contabil_responsabil && <span>{client.contabil_responsabil}</span>}
+                      {client.persoana_contact_telefon && <span>{client.persoana_contact_telefon}</span>}
+                      {client.tarif_total && <span>{client.tarif_total} {client.moneda}/lună</span>}
                     </div>
                     <div className="flex gap-1 mt-2 flex-wrap">
                       {client.vector_fiscal && client.vector_fiscal !== "Nu are" && <Badge text={`Vector: ${client.vector_fiscal}`} color="gray" />}
@@ -281,9 +253,9 @@ export default function ClientiActivi() {
                   </div>
                 </div>
                 <div className="flex gap-1 ml-4 flex-shrink-0">
-                  <Btn variant="ghost" size="sm" onClick={() => openView(client)}>👁️</Btn>
-                  <Btn variant="ghost" size="sm" onClick={() => openEdit(client)}>✏️</Btn>
-                  <Btn variant="ghost" size="sm" onClick={() => handleDelete(client.id, client.denumire)}>🗑️</Btn>
+                  <Btn variant="ghost" size="sm" onClick={() => openView(client)}>Vezi</Btn>
+                  <Btn variant="ghost" size="sm" onClick={() => openEdit(client)}>Editează</Btn>
+                  <Btn variant="ghost" size="sm" onClick={() => handleDelete(client.id, client.denumire)}>Șterge</Btn>
                 </div>
               </div>
             </Card>
@@ -300,7 +272,6 @@ export default function ClientiActivi() {
           size="xl"
           onClose={() => setModal(null)}
         >
-          {/* Sectiunea 1: Identificare */}
           <FormSection title="Date de identificare">
             <FormField label="Tip entitate" required>
               <Select value={f("tip_entitate")} onChange={set("tip_entitate")} options={TIP_ENTITATE.map(t => ({ value: t, label: t }))} />
@@ -328,7 +299,6 @@ export default function ClientiActivi() {
             </FormField>
           </FormSection>
 
-          {/* Firma de contabilitate */}
           <FormSection title="Firmă de contabilitate responsabilă">
             <FormField label="Firma de contabilitate" required>
               <Select
@@ -346,7 +316,6 @@ export default function ClientiActivi() {
             </FormField>
           </FormSection>
 
-          {/* Canal provenienta - doar pentru clienti noi */}
           <FormSection title="Proveniență client">
             <FormField label="" full>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -369,42 +338,24 @@ export default function ClientiActivi() {
             )}
           </FormSection>
 
-          {/* Date fiscale */}
           <FormSection title="Date fiscale & administrative">
-            <FormField label="Plătitor TVA" full>
+            <FormField label="Opțiuni fiscale" full>
               <div className="flex flex-wrap gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={getBool("platitor_tva")} onChange={setCheck("platitor_tva")} className="w-4 h-4 rounded" />
-                  <span className="text-sm text-gray-700">Plătitor TVA</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={getBool("firma_suspendata")} onChange={setCheck("firma_suspendata")} className="w-4 h-4 rounded" />
-                  <span className="text-sm text-gray-700">Firmă suspendată ONRC</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={getBool("punct_lucru")} onChange={setCheck("punct_lucru")} className="w-4 h-4 rounded" />
-                  <span className="text-sm text-gray-700">Punct de lucru</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={getBool("cui_intracomunitar")} onChange={setCheck("cui_intracomunitar")} className="w-4 h-4 rounded" />
-                  <span className="text-sm text-gray-700">CUI intracomunitar</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={getBool("procura")} onChange={setCheck("procura")} className="w-4 h-4 rounded" />
-                  <span className="text-sm text-gray-700">Are procură</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={getBool("semnatura_digitala")} onChange={setCheck("semnatura_digitala")} className="w-4 h-4 rounded" />
-                  <span className="text-sm text-gray-700">Semnătură digitală</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={getBool("salariati")} onChange={setCheck("salariati")} className="w-4 h-4 rounded" />
-                  <span className="text-sm text-gray-700">Are salariați</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={getBool("casa_marcat")} onChange={setCheck("casa_marcat")} className="w-4 h-4 rounded" />
-                  <span className="text-sm text-gray-700">Casă de marcat</span>
-                </label>
+                {[
+                  { field: "platitor_tva", label: "Plătitor TVA" },
+                  { field: "firma_suspendata", label: "Firmă suspendată ONRC" },
+                  { field: "punct_lucru", label: "Punct de lucru" },
+                  { field: "cui_intracomunitar", label: "CUI intracomunitar" },
+                  { field: "procura", label: "Are procură" },
+                  { field: "semnatura_digitala", label: "Semnătură digitală" },
+                  { field: "salariati", label: "Are salariați" },
+                  { field: "casa_marcat", label: "Casă de marcat" },
+                ].map(({ field, label }) => (
+                  <label key={field} className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={getBool(field)} onChange={setCheck(field)} className="w-4 h-4 rounded" />
+                    <span className="text-sm text-gray-700">{label}</span>
+                  </label>
+                ))}
               </div>
             </FormField>
             {form.platitor_tva && (
@@ -460,7 +411,6 @@ export default function ClientiActivi() {
             </FormField>
           </FormSection>
 
-          {/* Adresa */}
           <FormSection title="Adresă sediu social">
             <FormField label="Județ">
               <Select value={f("judet")} onChange={set("judet")} placeholder="Selectează județul" options={JUDETE.map(j => ({ value: j, label: j }))} />
@@ -488,7 +438,6 @@ export default function ClientiActivi() {
             </FormField>
           </FormSection>
 
-          {/* Administrator */}
           <FormSection title="Administrator / Reprezentant legal">
             <FormField label="Nume complet">
               <Input value={f("administrator_nume")} onChange={set("administrator_nume")} />
@@ -510,7 +459,6 @@ export default function ClientiActivi() {
             </FormField>
           </FormSection>
 
-          {/* Contact */}
           <FormSection title="Persoană de contact">
             <FormField label="Nume persoană contact">
               <Input value={f("persoana_contact_nume")} onChange={set("persoana_contact_nume")} />
@@ -532,7 +480,6 @@ export default function ClientiActivi() {
             </FormField>
           </FormSection>
 
-          {/* Servicii */}
           <FormSection title="Servicii contractate">
             <FormField label="Servicii active" full>
               <div className="flex flex-wrap gap-4">
@@ -556,7 +503,6 @@ export default function ClientiActivi() {
             </FormField>
           </FormSection>
 
-          {/* Tarifare */}
           <FormSection title="Tarifare curentă">
             <FormField label="Tarif contabilitate (RON/lună)">
               <Input type="number" value={f("tarif_contabilitate")} onChange={set("tarif_contabilitate")} placeholder="0" />
@@ -593,7 +539,7 @@ export default function ClientiActivi() {
           <div className="flex justify-end gap-3 pt-2 border-t border-gray-100 mt-4">
             <Btn variant="secondary" onClick={() => setModal(null)}>Anulează</Btn>
             <Btn onClick={handleSave} disabled={saving}>
-              {saving ? "Se salvează..." : modal === "add" ? "💾 Adaugă Clientul" : "💾 Salvează Modificările"}
+              {saving ? "Se salvează..." : modal === "add" ? "Adaugă Clientul" : "Salvează Modificările"}
             </Btn>
           </div>
         </Modal>
@@ -606,12 +552,12 @@ export default function ClientiActivi() {
         <Modal title={selectedClient.denumire} size="xl" onClose={() => setModal(null)}>
           <div className="flex gap-1 mb-5 border-b border-gray-200 -mt-1 flex-wrap">
             {[
-              { id: "info", label: "📋 Informații" },
-              { id: "fiscal", label: "💼 Date Fiscale" },
-              { id: "contact", label: "📞 Contact" },
-              { id: "servicii", label: "⚙️ Servicii & Tarife" },
-              { id: "documente", label: `📁 Documente (${selectedClient.documente?.length || 0})` },
-              { id: "istoric", label: `📜 Istoric (${selectedClient.istoric?.length || 0})` },
+              { id: "info", label: "Informații" },
+              { id: "fiscal", label: "Date Fiscale" },
+              { id: "contact", label: "Contact" },
+              { id: "servicii", label: "Servicii & Tarife" },
+              { id: "documente", label: `Documente (${selectedClient.documente?.length || 0})` },
+              { id: "istoric", label: `Istoric (${selectedClient.istoric?.length || 0})` },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -629,7 +575,7 @@ export default function ClientiActivi() {
             <div className="grid grid-cols-2 gap-4">
               <InfoCard title="Identificare">
                 <InfoRow label="Denumire" value={selectedClient.denumire} bold />
-                <InfoRow label="Tip" value={<span className="flex gap-1"><span>{selectedClient.tip_entitate}</span></span>} />
+                <InfoRow label="Tip" value={selectedClient.tip_entitate} />
                 <InfoRow label="CUI" value={selectedClient.cui} />
                 <InfoRow label="Nr. Reg. Com." value={selectedClient.nr_reg_com} />
                 <InfoRow label="EUID" value={selectedClient.euid} />
@@ -722,7 +668,7 @@ export default function ClientiActivi() {
                   { field: "serviciu_revisal", label: "Revisal" },
                   { field: "serviciu_salarizare", label: "Salarizare" },
                 ].map(s => (
-                  <InfoRow key={s.field} label={s.label} value={<Badge text={selectedClient[s.field] ? "✓ Activ" : "—"} color={selectedClient[s.field] ? "green" : "gray"} />} />
+                  <InfoRow key={s.field} label={s.label} value={<Badge text={selectedClient[s.field] ? "Activ" : "—"} color={selectedClient[s.field] ? "green" : "gray"} />} />
                 ))}
                 {selectedClient.alte_servicii && <InfoRow label="Altele" value={selectedClient.alte_servicii} />}
               </InfoCard>
@@ -742,18 +688,15 @@ export default function ClientiActivi() {
                 <Btn onClick={() => setDocModal(true)}>+ Adaugă Document</Btn>
               </div>
               {(!selectedClient.documente || selectedClient.documente.length === 0) ? (
-                <EmptyState icon="📁" title="Nu există documente" />
+                <EmptyState title="Nu există documente" />
               ) : (
                 <div className="space-y-2">
                   {selectedClient.documente.map(d => (
                     <div key={d.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">📄</span>
-                        <div>
-                          <p className="font-semibold text-sm text-gray-800">{d.denumire}</p>
-                          <p className="text-xs text-gray-500">{d.categorie} • {d.data_adaugare}</p>
-                          {d.observatii && <p className="text-xs text-gray-400">{d.observatii}</p>}
-                        </div>
+                      <div>
+                        <p className="font-semibold text-sm text-gray-800">{d.denumire}</p>
+                        <p className="text-xs text-gray-500">{d.categorie} • {d.data_adaugare}</p>
+                        {d.observatii && <p className="text-xs text-gray-400">{d.observatii}</p>}
                       </div>
                     </div>
                   ))}
@@ -765,7 +708,7 @@ export default function ClientiActivi() {
           {activeTab === "istoric" && (
             <div>
               {(!selectedClient.istoric || selectedClient.istoric.length === 0) ? (
-                <EmptyState icon="📜" title="Nu există istoric" />
+                <EmptyState title="Nu există istoric" />
               ) : (
                 <div className="space-y-2">
                   {[...(selectedClient.istoric || [])].reverse().map((ev, i) => (
@@ -788,9 +731,9 @@ export default function ClientiActivi() {
 
           <div className="flex justify-between mt-5 pt-4 border-t border-gray-100">
             <Btn variant="danger" size="sm" onClick={() => handleDelete(selectedClient.id, selectedClient.denumire)}>
-              🗑️ Șterge clientul
+              Șterge clientul
             </Btn>
-            <Btn onClick={() => openEdit(selectedClient)}>✏️ Editează</Btn>
+            <Btn onClick={() => openEdit(selectedClient)}>Editează</Btn>
           </div>
         </Modal>
       )}
@@ -812,11 +755,11 @@ export default function ClientiActivi() {
             </FormField>
           </div>
           <p className="text-xs text-amber-600 bg-amber-50 rounded-lg p-3 mt-3">
-            ⚠️ Upload fișiere vine în versiunea următoare.
+            Upload fișiere vine în versiunea următoare.
           </p>
           <div className="flex justify-end gap-2 mt-4">
             <Btn variant="secondary" onClick={() => setDocModal(false)}>Anulează</Btn>
-            <Btn onClick={handleAddDoc}>💾 Adaugă</Btn>
+            <Btn onClick={handleAddDoc}>Adaugă</Btn>
           </div>
         </Modal>
       )}
@@ -842,3 +785,4 @@ function InfoRow({ label, value, bold }) {
     </div>
   );
 }
+
