@@ -193,5 +193,5 @@ export const JUDETE = [
 export const BANCI = [
   "BCR","BRD","ING Bank","Raiffeisen Bank","UniCredit","Alpha Bank",
   "CEC Bank","Banca Transilvania","OTP Bank","Garanti BBVA","Libra Bank",
-  "First Bank","Exim Banca","Patria Bank","TBI Bank","Intesa Sanpaolo Bank","Altă bancă"
+  "First Bank","Exim Banca","Patria Bank","TBI Bank","Altă bancă"
 ];
