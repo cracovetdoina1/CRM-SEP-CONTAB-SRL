@@ -4,14 +4,11 @@ import FirmeContabilitate from "./pages/FirmeContabilitate";
 import ClientiActivi from "./pages/ClientiActivi";
 import ComingSoon from "./pages/ComingSoon";
 
-// ============================================================
-// MENIU NAVIGARE
-// ============================================================
 const MODULES = [
   {
     section: "Principal",
     items: [
-      { id: "dashboard", label: "Dashboard",  component: Dashboard },
+      { id: "dashboard", label: "Dashboard", component: Dashboard },
     ]
   },
   {
@@ -42,16 +39,13 @@ const MODULES = [
     section: "Administrare",
     items: [
       { id: "utilizatori", label: "Utilizatori", component: () => <ComingSoon title="Utilizatori & Drepturi" description="Gestionare utilizatori și roluri: Admin, Manager, Contabil, Operator." /> },
-      { id: "setari", label: "Setări", component: () => <ComingSoon title="Setări" icon="⚙️" /> },
+      { id: "setari", label: "Setări", component: () => <ComingSoon title="Setări" /> },
     ]
   }
 ];
 
 const allItems = MODULES.flatMap(m => m.items);
 
-// ============================================================
-// APP PRINCIPAL
-// ============================================================
 export default function App() {
   const [currentModule, setCurrentModule] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
@@ -66,7 +60,6 @@ export default function App() {
 
   const SidebarContent = () => (
     <>
-      {/* Logo */}
       <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} px-4 py-4 border-b border-slate-700`}>
         {!collapsed && (
           <div>
@@ -76,13 +69,12 @@ export default function App() {
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="text-slate-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-colors"
+          className="text-slate-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-colors font-bold"
         >
-          {collapsed ? "→" : "←"}
+          {collapsed ? "›" : "‹"}
         </button>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-2">
         {MODULES.map(section => (
           <div key={section.section} className="mb-4">
@@ -102,19 +94,23 @@ export default function App() {
                 }`}
                 title={collapsed ? item.label : ""}
               >
-                <span className="text-base flex-shrink-0">{item.icon}</span>
-                {!collapsed && <span className="truncate">{item.label}</span>}
+                {collapsed ? (
+                  <span className="text-xs font-bold w-5 text-center flex-shrink-0">
+                    {item.label.charAt(0)}
+                  </span>
+                ) : (
+                  <span className="truncate">{item.label}</span>
+                )}
               </button>
             ))}
           </div>
         ))}
       </nav>
 
-      {/* Footer */}
       {!collapsed && (
         <div className="p-3 border-t border-slate-700">
           <div className="bg-slate-700/50 rounded-lg p-3">
-            <p className="text-xs text-slate-400"> Firebase conectat</p>
+            <p className="text-xs text-slate-400">Firebase conectat</p>
             <p className="text-xs text-slate-500 mt-0.5">sep-crm-contabilitate</p>
           </div>
         </div>
@@ -124,14 +120,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar Desktop */}
       <aside
         className={`${collapsed ? "w-16" : "w-60"} bg-slate-900 flex-col transition-all duration-200 fixed h-full z-30 hidden md:flex`}
       >
         <SidebarContent />
       </aside>
 
-      {/* Sidebar Mobile Overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div className="fixed inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
@@ -141,13 +135,11 @@ export default function App() {
         </div>
       )}
 
-      {/* Main */}
       <main className={`flex-1 ${collapsed ? "md:ml-16" : "md:ml-60"} transition-all duration-200 min-h-screen`}>
-        {/* Mobile header */}
         <div className="md:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 sticky top-0 z-20">
-          <button onClick={() => setMobileOpen(true)} className="text-gray-600 text-xl">☰</button>
+          <button onClick={() => setMobileOpen(true)} className="text-gray-600 font-bold text-lg">≡</button>
           <span className="font-bold text-gray-800">
-            {allItems.find(m => m.id === currentModule)?.icon} {allItems.find(m => m.id === currentModule)?.label}
+            {allItems.find(m => m.id === currentModule)?.label}
           </span>
         </div>
 
