@@ -11,38 +11,38 @@ const MODULES = [
   {
     section: "Principal",
     items: [
-      { id: "dashboard", label: "Dashboard", icon: "📊", component: Dashboard },
+      { id: "dashboard", label: "Dashboard",  component: Dashboard },
     ]
   },
   {
     section: "Firme & Clienți",
     items: [
-      { id: "firme_contabilitate", label: "Firme Contabilitate", icon: "🏛️", component: FirmeContabilitate },
-      { id: "clienti_activi", label: "Clienți Activi", icon: "👥", component: ClientiActivi },
-      { id: "baza_clienti", label: "Baza Clienți", icon: "📋", component: () => <ComingSoon title="Baza Mare de Clienți" icon="📋" description="Toți clienții: activi, suspendați, reziliați — cu filtre avansate și export Excel." /> },
-      { id: "firme_suspendate", label: "Firme Suspendate", icon: "⏸️", component: () => <ComingSoon title="Firme Suspendate" icon="⏸️" description="Vedere filtrată cu firmele suspendate ONRC, dată suspendare și dată estimată reactivare." /> },
-      { id: "rezilieri", label: "Rezilieri", icon: "❌", component: () => <ComingSoon title="Rezilieri & Suspendări Servicii" icon="❌" description="Gestionare rezilieri definitive și suspendări temporare de servicii pentru neplată sau alte cauze." /> },
+      { id: "firme_contabilitate", label: "Firme Contabilitate", component: FirmeContabilitate },
+      { id: "clienti_activi", label: "Clienți Activi", component: ClientiActivi },
+      { id: "baza_clienti", label: "Baza Clienți", component: () => <ComingSoon title="Baza Mare de Clienți" description="Toți clienții: activi, suspendați, reziliați — cu filtre avansate și export Excel." /> },
+      { id: "firme_suspendate", label: "Firme Suspendate", component: () => <ComingSoon title="Firme Suspendate" description="Vedere filtrată cu firmele suspendate ONRC, dată suspendare și dată estimată reactivare." /> },
+      { id: "rezilieri", label: "Rezilieri", component: () => <ComingSoon title="Rezilieri & Suspendări Servicii" description="Gestionare rezilieri definitive și suspendări temporare de servicii pentru neplată sau alte cauze." /> },
     ]
   },
   {
     section: "Contracte & Documente",
     items: [
-      { id: "contracte_emise", label: "Contracte Emise", icon: "📄", component: () => <ComingSoon title="Contracte Emise" icon="📄" description="Toate contractele emise cu statusuri: Draft, Trimis spre semnare, Semnat, Suspendat, Reziliat." /> },
-      { id: "sabloane", label: "Șabloane Contracte", icon: "📝", component: () => <ComingSoon title="Șabloane & Drafturi" icon="📝" description="Modele de contracte care se completează automat cu datele clientului. Export PDF și Word." /> },
-      { id: "doc_incomplete", label: "Doc. Incomplete", icon: "⚠️", component: () => <ComingSoon title="Documente Incomplete" icon="⚠️" description="Alertă automată pentru clienții cu dosare incomplete. Listare clienți și documente lipsă." /> },
+      { id: "contracte_emise", label: "Contracte Emise", component: () => <ComingSoon title="Contracte Emise" description="Toate contractele emise cu statusuri: Draft, Trimis spre semnare, Semnat, Suspendat, Reziliat." /> },
+      { id: "sabloane", label: "Șabloane Contracte", component: () => <ComingSoon title="Șabloane & Drafturi" description="Modele de contracte care se completează automat cu datele clientului. Export PDF și Word." /> },
+      { id: "doc_incomplete", label: "Doc. Incomplete", component: () => <ComingSoon title="Documente Incomplete" description="Alertă automată pentru clienții cu dosare incomplete. Listare clienți și documente lipsă." /> },
     ]
   },
   {
     section: "Vânzări",
     items: [
-      { id: "leaduri", label: "Lead-uri", icon: "🎯", component: () => <ComingSoon title="Potențiali Clienți (Lead-uri)" icon="🎯" description="Pipeline complet: Nou → Contactat → Ofertat → Negociere → Așteptare semnare → Câștigat/Pierdut." /> },
+      { id: "leaduri", label: "Lead-uri", component: () => <ComingSoon title="Potențiali Clienți (Lead-uri)" description="Pipeline complet: Nou → Contactat → Ofertat → Negociere → Așteptare semnare → Câștigat/Pierdut." /> },
     ]
   },
   {
     section: "Administrare",
     items: [
-      { id: "utilizatori", label: "Utilizatori", icon: "👤", component: () => <ComingSoon title="Utilizatori & Drepturi" icon="👤" description="Gestionare utilizatori și roluri: Admin, Manager, Contabil, Operator." /> },
-      { id: "setari", label: "Setări", icon: "⚙️", component: () => <ComingSoon title="Setări" icon="⚙️" /> },
+      { id: "utilizatori", label: "Utilizatori", component: () => <ComingSoon title="Utilizatori & Drepturi" description="Gestionare utilizatori și roluri: Admin, Manager, Contabil, Operator." /> },
+      { id: "setari", label: "Setări", component: () => <ComingSoon title="Setări" icon="⚙️" /> },
     ]
   }
 ];
@@ -114,7 +114,7 @@ export default function App() {
       {!collapsed && (
         <div className="p-3 border-t border-slate-700">
           <div className="bg-slate-700/50 rounded-lg p-3">
-            <p className="text-xs text-slate-400">🔥 Firebase conectat</p>
+            <p className="text-xs text-slate-400"> Firebase conectat</p>
             <p className="text-xs text-slate-500 mt-0.5">sep-crm-contabilitate</p>
           </div>
         </div>
